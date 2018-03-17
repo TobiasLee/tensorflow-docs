@@ -1,21 +1,15 @@
-# TensorBoard: Graph Visualization
+# TensorBoard: 图形可视化
 
-TensorFlow computation graphs are powerful but complicated. The graph visualization can help you understand and debug them. Here's an example of the visualization at work.
+TensorFlow 的计算图功能强大但却复杂。而图表可视化功能可以帮助您了解和调试它们。以下是一个可视化工作的例子。
 
 ![Visualization of a TensorFlow graph](https://www.tensorflow.org/images/graph_vis_animation.gif "Visualization of a TensorFlow graph")
-*Visualization of a TensorFlow graph.*
+**Tensorflow 图形可视化**
 
-To see your own graph, run TensorBoard pointing it to the log directory of the job, click on the graph tab on the top pane and select the appropriate run using the menu at the upper left corner. For in depth information on how to run TensorBoard and make sure you are logging all the necessary information, see @{$summaries_and_tensorboard$TensorBoard: Visualizing Learning}.
+要查看您自己的图形，请运行 TensorBoard 并将其指向工作的日志目录，单击顶部窗格上的图形选项卡，然后使用左上角的菜单选择相关的运行。如果想获得有关于如何运行 TensorBoard 并且确保记录了所有必要信息的更多信息，请参阅 @{$summaries_and_tensorboard$TensorBoard: Visualizing Learning}。
 
-## Name scoping and nodes
+## 命名范围和节点
 
-Typical TensorFlow graphs can have many thousands of nodes--far too many to see
-easily all at once, or even to lay out using standard graph tools. To simplify,
-variable names can be scoped and the visualization uses this information to
-define a hierarchy on the nodes in the graph.  By default, only the top of this
-hierarchy is shown. Here is an example that defines three operations under the
-`hidden` name scope using
-@{tf.name_scope}:
+典型的 TensorFlow 图可能有成千上万的节点——太多了，很难一次看到，甚至无法使用标准图形工具进行布局。为方便起见，变量名可以作用于域，可视化使用这些信息来定义图中节点上的层次结构。默认情况下，只显示该层次结构的顶部。以下是在一个在 `hidden` 名字域下使用 @{tf.name_scope} 名称的范围定义三个操作的示例 ：
 
 ```python
 import tensorflow as tf
@@ -26,19 +20,15 @@ with tf.name_scope('hidden') as scope:
   b = tf.Variable(tf.zeros([1]), name='biases')
 ```
 
-This results in the following three op names:
+这导致了以下三个 op 的名称：
 
 * `hidden/alpha`
 * `hidden/weights`
 * `hidden/biases`
 
-By default, the visualization will collapse all three into a node labeled `hidden`.
-The extra detail isn't lost. You can double-click, or click
-on the orange `+` sign in the top right to expand the node, and then you'll see
-three subnodes for `alpha`, `weights` and `biases`.
+在默认情况下，可视化将把所有三个 op 都折叠成标记为 `hidden` 的节点。至于额外的细节是不会丢失的。您可以双击，或者点击右上角橙色 `+` 号展开节点，然后你便会看到三个子节点 `alpha`，`weights` 和 `biases`。
 
-Here's a real-life example of a more complicated node in its initial and
-expanded states.
+以下是一个更复杂的节点在其初始状态和扩展状态的真实例子。
 
 <table width="100%;">
   <tr>
@@ -51,38 +41,21 @@ expanded states.
   </tr>
   <tr>
     <td style="width: 50%;">
-      Initial view of top-level name scope <code>pool_1</code>. Clicking on the orange <code>+</code> button on the top right or double-clicking on the node itself will expand it.
+      Initial view of top-level name scope <code>pool_1</code>. 顶级名称域 pool_1 的初始视图。点击右上角橙色 + 号按钮或双击节点本身将会展开它。
     </td>
     <td style="width: 50%;">
-      Expanded view of <code>pool_1</code> name scope. Clicking on the orange <code>-</code> button on the top right or double-clicking on the node itself will collapse the name scope.
+      名称域 pool_1 的扩展视图。点击右上角的橙色 - 按钮或双击节点本身将折叠名称范围。
     </td>
   </tr>
 </table>
 
-Grouping nodes by name scopes is critical to making a legible graph. If you're
-building a model, name scopes give you control over the resulting visualization.
-**The better your name scopes, the better your visualization.**
+按名称域对节点进行分组的方法对于制作清晰的图形至关重要。如果您正在构建模型，则名称域可以让你更好的控制生成的可视化图形。**你命名的名字域越好，你的可视化图形就越好。**
 
-The figure above illustrates a second aspect of the visualization. TensorFlow
-graphs have two kinds of connections: data dependencies and control
-dependencies. Data dependencies show the flow of tensors between two ops and
-are shown as solid arrows, while control dependencies use dotted lines. In the
-expanded view (right side of the figure above) all the connections are data
-dependencies with the exception of the dotted line connecting `CheckNumerics`
-and `control_dependency`.
+上图说明了可视化的第二个方面。TensorFlow 图有两种连接方式：数据相关性和控制相关性。数据相关性显示两个操作符之间的张量流，并显示为实线箭头，而控制相关性使用虚线。在展开视图（上面两幅图中的右侧图片）除了连接 `CheckNumerics` 和 `control_dependency` 的虚线外，所有连接都是数据依赖关系。
 
-There's a second trick to simplifying the layout. Most TensorFlow graphs have a
-few nodes with many connections to other nodes. For example, many nodes might
-have a control dependency on an initialization step. Drawing all edges between
-the `init` node and its dependencies would create a very cluttered view.
+这儿还有一个简化布局的技巧。大多数 TensorFlow 图有几个与其他节点连接的节点。比如说，许多节点可能对初始化步骤具有控制相关性。绘制 init 节点及其相关关系之间的所有边将创建一个非常混乱的视图。
 
-To reduce clutter, the visualization separates out all high-degree nodes to an
-*auxiliary* area on the right and doesn't draw lines to represent their edges.
-Instead of lines, we draw small *node icons* to indicate the connections.
-Separating out the auxiliary nodes typically doesn't remove critical
-information since these nodes are usually related to bookkeeping functions.
-See [Interaction](#interaction) for how to move nodes between the main graph
-and the auxiliary area.
+为了减少混乱，可视化将所有高位节点分隔到右侧的辅助区域，并通过不画线来表示其边缘。我们绘制小节点图标来代替连线。分离辅助节点通常不会去除关键的信息，因为这些节点通常与记账功能有关。请参阅 [Interaction](#interaction) 来了解如何在主图和辅助区之间移动节点。
 
 <table width="100%;">
   <tr>
@@ -95,21 +68,15 @@ and the auxiliary area.
   </tr>
   <tr>
     <td style="width: 50%;">
-      Node <code>conv_1</code> is connected to <code>save</code>. Note the little <code>save</code> node icon on its right.
+      结点 <code>conv_1</code> 连接到 <code>save</code>。请注意结点 <code>save</code> 右侧的小节点图标。
     </td>
     <td style="width: 50%;">
-      <code>save</code> has a high degree, and will appear as an auxiliary node. The connection with <code>conv_1</code> is shown as a node icon on its left. To further reduce clutter, since <code>save</code> has a lot of connections, we show the first 5 and abbreviate the others as <code>... 12 more</code>.
+      <code>save</code> 具有很高的等级，并会出现作为辅助节点。连接 <code>conv_1</code> 显示为其左侧的节点图标。为了进一步减少混乱，由于 <code>save</code> 有很多的连接，我们显示前 5 个并缩写其他为 <code>... 12 more</code>.
     </td>
   </tr>
 </table>
 
-One last structural simplification is *series collapsing*. Sequential
-motifs--that is, nodes whose names differ by a number at the end and have
-isomorphic structures--are collapsed into a single *stack* of nodes, as shown
-below. For networks with long sequences, this greatly simplifies the view. As
-with hierarchical nodes, double-clicking expands the series. See
-[Interaction](#interaction) for how to disable/enable series collapsing for a
-specific set of nodes.
+最后一个结构简化方法是**系列崩溃**。连续图案——也就是说，名称相差最后一个数字并具有同构结构的节点——会折叠成**栈**节点，就如下图所示。对于拥有长序列的网络结构，这大大简化了视图。与分层节点一样，双击将扩展该部分。请参阅   [交互](https://github.com/xitu/tensorflow/blob/zh-hans/tensorflow/docs_src/get_started/graph_viz.md#interaction)以了解如何为特定节点集禁用/启用折叠。
 
 <table width="100%;">
   <tr>
@@ -122,41 +89,33 @@ specific set of nodes.
   </tr>
   <tr>
     <td style="width: 50%;">
-      A collapsed view of a node sequence.
+      节点序列折叠后的视图。
     </td>
     <td style="width: 50%;">
-      A small piece of the expanded view, after double-click.
+      双击后展开的一小块视图。
     </td>
   </tr>
 </table>
 
-Finally, as one last aid to legibility, the visualization uses special icons
-for constants and summary nodes. To summarize, here's a table of node symbols:
+最后，作为对于易读性的最后一个帮助，可视化将对于常量和总节点使用特殊的图标。在此总结一下，下面是一个节点的符号表：
 
-Symbol | Meaning
---- | ---
-![Name scope](https://www.tensorflow.org/images/namespace_node.png "Name scope") | *High-level* node representing a name scope. Double-click to expand a high-level node.
-![Sequence of unconnected nodes](https://www.tensorflow.org/images/horizontal_stack.png "Sequence of unconnected nodes") | Sequence of numbered nodes that are not connected to each other.
-![Sequence of connected nodes](https://www.tensorflow.org/images/vertical_stack.png "Sequence of connected nodes") | Sequence of numbered nodes that are connected to each other.
-![Operation node](https://www.tensorflow.org/images/op_node.png "Operation node") | An individual operation node.
-![Constant node](https://www.tensorflow.org/images/constant.png "Constant node") | A constant.
-![Summary node](https://www.tensorflow.org/images/summary.png "Summary node") | A summary node.
-![Data flow edge](https://www.tensorflow.org/images/dataflow_edge.png "Data flow edge") | Edge showing the data flow between operations.
-![Control dependency edge](https://www.tensorflow.org/images/control_edge.png "Control dependency edge") | Edge showing the control dependency between operations.
-![Reference edge](https://www.tensorflow.org/images/reference_edge.png "Reference edge") | A reference edge showing that the outgoing operation node can mutate the incoming tensor.
+| Symbol                                   | Meaning                    |
+| ---------------------------------------- | -------------------------- |
+| ![Name scope](https://www.tensorflow.org/images/namespace_node.png "Name scope") | 表示名称域的*高级*节点。鼠标双击用以展开高级节点。 |
+| ![Sequence of unconnected nodes](https://www.tensorflow.org/images/horizontal_stack.png "Sequence of unconnected nodes") | 没有相互连接的编号节点序列。             |
+| ![Sequence of connected nodes](https://www.tensorflow.org/images/vertical_stack.png "Sequence of connected nodes") | 相互连接的编号节点序列。               |
+| ![Operation node](https://www.tensorflow.org/images/op_node.png "Operation node") | 一个单独的操作节点。                 |
+| ![Constant node](https://www.tensorflow.org/images/constant.png "Constant node") | 一个常数。                      |
+| ![Summary node](https://www.tensorflow.org/images/summary.png "Summary node") | 摘要节点。                      |
+| ![Data flow edge](https://www.tensorflow.org/images/dataflow_edge.png "Data flow edge") | 显示互相操作过程中的数据流。             |
+| ![Control dependency edge](https://www.tensorflow.org/images/control_edge.png "Control dependency edge") | 显示互相操作过程中的控制相关性。           |
+| ![Reference edge](https://www.tensorflow.org/images/reference_edge.png "Reference edge") | 显示传出操作节点可以改变传入张量。          |
 
-## Interaction {#interaction}
+## 互动 {#interaction}
 
-Navigate the graph by panning and zooming. Click and drag to pan, and use a
-scroll gesture to zoom. Double-click on a node, or click on its `+` button, to
-expand a name scope that represents a group of operations. To easily keep
-track of the current viewpoint when zooming and panning, there is a minimap in
-the bottom right corner.
+通过平移和缩放导航图形。可以通过点击并拖动来平移，并使用滚动手势进行缩放。双击某个节点，或者单击其 `+` 按钮，展开代表一组操作的名称域。为了在放大和平移时轻松跟踪当前视点，右下角会有一个小地图。
 
-To close an open node, double-click it again or click its `-` button. You can
-also click once to select a node. It will turn a darker color, and details
-about it and the nodes it connects to will appear in the info card at upper
-right corner of the visualization.
+要关闭打开的节点，请再次双击它或单击其 `-` 按钮。您也可以单击一次来选择一个节点。它会变成一个较深的颜色，并且关于它的详细信息以及它所连接的节点将出现在可视化对象右上角的信息卡中。
 
 <table width="100%;">
   <tr>
@@ -169,40 +128,26 @@ right corner of the visualization.
   </tr>
   <tr>
     <td style="width: 50%;">
-      Info card showing detailed information for the <code>conv2</code> name scope. The inputs and outputs are combined from the inputs and outputs of the operation nodes inside the name scope. For name scopes no attributes are shown.
+      信息卡会显示 <code>conv2</code> 名称域的详细信息。输入和输出通过名称域内操作节点的输入和输出，组合而成。对于名称域，不显示任何属性。
     </td>
     <td style="width: 50%;">
-      Info card showing detailed information for the <code>DecodeRaw</code> operation node. In addition to inputs and outputs, the card shows the device and the attributes associated with the current operation.
+      信息卡会显示 <code>DecodeRaw</code> 操作节点的详细信息。除输入和输出外，卡片还显示设备与当前操作相关的属性。
     </td>
   </tr>
 </table>
 
-TensorBoard provides several ways to change the visual layout of the graph. This
-doesn't change the graph's computational semantics, but it can bring some
-clarity to the network's structure. By right clicking on a node or pressing
-buttons on the bottom of that node's info card, you can make the following
-changes to its layout:
+TensorBoard 提供了几种方法来改变图形的视觉布局。这不会改变图的计算语义，但是它可以让网络的结构更加清晰。通过右键单击某个节点或按该节点信息卡底部的按钮，可以对其布局进行以下更改：
 
-* Nodes can be moved between the main graph and the auxiliary area.
-* A series of nodes can be ungrouped so that the nodes in the series do not
-appear grouped together. Ungrouped series can likewise be regrouped.
+- 节点可以在主图表和辅助区域之间移动。
+- 可以将一组节点取消分组，使得该组的节点不会出现在一起。未分组的节点也可以重新组合。
 
-Selection can also be helpful in understanding high-degree nodes. Select any
-high-degree node, and the corresponding node icons for its other connections
-will be selected as well. This makes it easy, for example, to see which nodes
-are being saved--and which aren't.
+选择也可以帮助理解高级节点。选择任何高度节点，其他连接的相应节点图标也将被选中。例如，这可以很容易地看到哪些节点正在保存 —— 哪些不是。
 
-Clicking on a node name in the info card will select it. If necessary, the
-viewpoint will automatically pan so that the node is visible.
+点击信息卡中的节点名称将选择它。如有必要，视点将自动平移，以便于节点可见。
 
-Finally, you can choose two color schemes for your graph, using the color menu
-above the legend. The default *Structure View* shows structure: when two
-high-level nodes have the same structure, they appear in the same color of the
-rainbow. Uniquely structured nodes are gray. There's a second view, which shows
-what device the different operations run on. Name scopes are colored
-proportionally to the fraction of devices for the operations inside them.
+最后，您可以使用图例上方的颜色菜单为图形选择两种配色方案。默认的 **结构视图** 会显示以下结构：当两个高级节点具有相同的结构时，它们以彩虹的相同颜色出现。结构独特的节点是灰色的。然后还有第二个视图，它显示了不同操作运行的设备。名称域与其内部操作的设备比例成比例。
 
-The images below give an illustration for a piece of a real-life graph.
+下面的图片我们给出了一张真实生活图的插图。
 
 <table width="100%;">
   <tr>
@@ -215,44 +160,34 @@ The images below give an illustration for a piece of a real-life graph.
   </tr>
   <tr>
     <td style="width: 50%;">
-      Structure view: The gray nodes have unique structure. The orange <code>conv1</code> and <code>conv2</code> nodes have the same structure, and analogously for nodes with other colors.
+      结构视图：灰色节点具有独特的结构。橙色的 <code>conv1</code> 和 <code>conv2</code> 节点具有相同的结构，至于其他颜色的节点类似。
     </td>
     <td style="width: 50%;">
-      Device view: Name scopes are colored proportionally to the fraction of devices of the operation nodes inside them. Here, purple means GPU and the green is CPU.
+      设备视图：名称域与其内部操作节点的设备比例成比例。在这里，紫色是指 GPU，而绿色是 CPU。
     </td>
   </tr>
 </table>
 
-## Tensor shape information
+## 张量的形状信息
 
-When the serialized `GraphDef` includes tensor shapes, the graph visualizer
-labels edges with tensor dimensions, and edge thickness reflects total tensor
-size. To include tensor shapes in the `GraphDef` pass the actual graph object
-(as in `sess.graph`) to the `FileWriter` when serializing the graph.
-The images below show the CIFAR-10 model with tensor shape information:
+当序列化 `GraphDef` 包括张量的形状时，图形可视化工具用张量维度标注边缘，边缘厚度反映总张量的大小。在 `GraphDef` 的传递中包含张量形状的实际图形对象（如在 `sess.graph` ）到 `FileWriter` 序列化图形的时候。下面的图片就显示了具有张量形状信息的 CIFAR-10 模型：
 <table width="100%;">
   <tr>
+
     <td style="width: 100%;">
       <img src="https://www.tensorflow.org/images/tensor_shapes.png" alt="CIFAR-10 model with tensor shape information" title="CIFAR-10 model with tensor shape information" />
     </td>
   </tr>
   <tr>
     <td style="width: 100%;">
-      CIFAR-10 model with tensor shape information.
+      张量形状信息的 CIFAR-10 模型。
     </td>
   </tr>
 </table>
 
-## Runtime statistics
+## 运行时间统计
 
-Often it is useful to collect runtime metadata for a run, such as total memory
-usage, total compute time, and tensor shapes for nodes. The code example below
-is a snippet from the train and test section of a modification of the
-@{$layers$simple MNIST tutorial}, in which we have recorded summaries and
-runtime statistics. See the
-@{$summaries_and_tensorboard#serializing-the-data$Summaries Tutorial}
-for details on how to record summaries.
-Full source is [here](https://www.tensorflow.org/code/tensorflow/examples/tutorials/mnist/mnist_with_summaries.py).
+通常收集运行时的元数据是非常有用的，例如总内存使用量，总计算时间和节点的张量形状。下面的代码示例是修改自 @{$layers$simple MNIST tutorial} 中的一个片段，其中我们记录了摘要法和运行时统计的信息。有关如何记录摘要的详细信息，请参阅 @{$summaries_and_tensorboard#serializing-the-data$Summaries Tutorial}。完整的源代码在[这里](https://www.tensorflow.org/code/tensorflow/examples/tutorials/mnist/mnist_with_summaries.py)。
 
 ```python
   # Train the model, and also write summaries.
@@ -290,15 +225,9 @@ Full source is [here](https://www.tensorflow.org/code/tensorflow/examples/tutori
         train_writer.add_summary(summary, i)
 ```
 
-This code will emit runtime statistics for every 100th step starting at step99.
+此代码将从步骤 99 开始每 100 步发出运行时统计信息。
 
-When you launch tensorboard and go to the Graph tab, you will now see options
-under "Session runs" which correspond to the steps where run metadata was added.
-Selecting one of these runs will show you the snapshot of the network at that
-step, fading out unused nodes. In the controls on the left hand side, you will
-be able to color the nodes by total memory or total compute time. Additionally,
-clicking on a node will display the exact total memory, compute time, and
-tensor output sizes.
+当启动 tensorboard 并转到图表选项卡时，您现在将在“会话运行”下看到与添加运行元数据的步骤和与其相对应的选项。选择其中一个运行过程将显示在该步骤的网络快照，淡出未使用的节点。在左侧的控件中，您可以通过总内存或总计算时间对节点着色。此外，单击节点将显示确切的总内存，计算时间和张量输出大小。
 
 
 <table width="100%;">
@@ -313,4 +242,4 @@ tensor output sizes.
       <img src="https://www.tensorflow.org/images/run_metadata_infocard.png" alt="Run metadata info card" title="Run metadata info card" />
     </td>
   </tr>
-</table>
+</table> 

@@ -12,5 +12,3 @@ migration.md
 install_java.md: Java
 install_go.md: Go
 install_c.md: C
-
-

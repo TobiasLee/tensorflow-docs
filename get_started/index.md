@@ -1,4 +1,4 @@
-# Getting Started
+# 开始
 
 TensorFlow is a tool for machine learning. While it contains a wide range of
 functionality, TensorFlow is mainly designed for deep neural network models.
